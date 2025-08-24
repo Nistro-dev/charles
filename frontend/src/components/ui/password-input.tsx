@@ -23,6 +23,7 @@ export function PasswordInput({ label, error, ...props }: PasswordInputProps) {
           {...props}
           type={showPassword ? 'text' : 'password'}
           className={`pr-10 ${error ? 'border-red-500' : ''}`}
+          noValidate
         />
         <Button
           type="button"
