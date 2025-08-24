@@ -82,7 +82,7 @@ export function useAuth(): UseAuthReturn {
   const loginMutation = useMutation({
     mutationFn: authAPI.login,
     onSuccess: (data) => {
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('token', data.accessToken);
       localStorage.setItem('user', JSON.stringify(data.user));
       
       setAuthState({
@@ -100,7 +100,7 @@ export function useAuth(): UseAuthReturn {
   const registerMutation = useMutation({
     mutationFn: authAPI.register,
     onSuccess: (data) => {
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('token', data.accessToken);
       localStorage.setItem('user', JSON.stringify(data.user));
       
       setAuthState({
@@ -116,12 +116,22 @@ export function useAuth(): UseAuthReturn {
 
   // Login function
   const login = useCallback(async (credentials: LoginRequest): Promise<void> => {
-    await loginMutation.mutateAsync(credentials);
+    try {
+      await loginMutation.mutateAsync(credentials);
+    } catch (error) {
+      // Re-throw the error so it can be handled by the form
+      throw error;
+    }
   }, [loginMutation]);
 
   // Register function
   const register = useCallback(async (userData: RegisterRequest): Promise<void> => {
-    await registerMutation.mutateAsync(userData);
+    try {
+      await registerMutation.mutateAsync(userData);
+    } catch (error) {
+      // Re-throw the error so it can be handled by the form
+      throw error;
+    }
   }, [registerMutation]);
 
   // Logout function

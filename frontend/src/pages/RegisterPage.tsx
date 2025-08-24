@@ -38,7 +38,7 @@ export function RegisterPage() {
   const registerMutation = useMutation({
     mutationFn: authAPI.register,
     onSuccess: (data) => {
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('token', data.accessToken);
       localStorage.setItem('user', JSON.stringify(data.user));
       navigate('/dashboard');
     },

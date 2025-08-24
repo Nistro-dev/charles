@@ -23,7 +23,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Only redirect on 401 if we're not already on login/register pages
+    if (error.response?.status === 401 && !window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
@@ -34,18 +35,36 @@ api.interceptors.response.use(
 
 export const authAPI = {
   login: async (credentials: LoginRequest): Promise<AuthResponse> => {
-    const response = await api.post('/api/auth/login', credentials);
-    return response.data;
+    try {
+      const response = await api.post('/api/auth/login', credentials);
+      return response.data;
+    } catch (error: any) {
+      // Extract error message from backend response
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Erreur de connexion';
+      throw new Error(errorMessage);
+    }
   },
 
   register: async (userData: RegisterRequest): Promise<AuthResponse> => {
-    const response = await api.post('/api/auth/register', userData);
-    return response.data;
+    try {
+      const response = await api.post('/api/auth/register', userData);
+      return response.data;
+    } catch (error: any) {
+      // Extract error message from backend response
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Erreur d\'inscription';
+      throw new Error(errorMessage);
+    }
   },
 
   me: async (): Promise<{ user: User }> => {
-    const response = await api.get('/api/auth/me');
-    return response.data;
+    try {
+      const response = await api.get('/api/auth/me');
+      return response.data;
+    } catch (error: any) {
+      // Extract error message from backend response
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Erreur de récupération du profil';
+      throw new Error(errorMessage);
+    }
   },
 };
 

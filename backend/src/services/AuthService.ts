@@ -28,13 +28,13 @@ export class AuthService implements IAuthService {
 
       // Check if user is active
       if (!user.isActive) {
-        throw new AuthenticationError('Account is deactivated');
+        throw new AuthenticationError('Compte désactivé');
       }
 
       // Verify password
       const isValidPassword = await this.verifyPassword(credentials.password, user.password);
       if (!isValidPassword) {
-        throw new AuthenticationError('Invalid credentials');
+        throw new AuthenticationError('Email ou mot de passe incorrect');
       }
 
       // Generate tokens
@@ -45,7 +45,7 @@ export class AuthService implements IAuthService {
       if (error instanceof AuthenticationError || error instanceof ValidationError) {
         throw error;
       }
-      throw new AuthenticationError('Login failed');
+      throw new AuthenticationError('Échec de la connexion');
     }
   }
 
@@ -57,7 +57,7 @@ export class AuthService implements IAuthService {
       // Check if user already exists
       const existingUser = await this.userRepository.findByEmail(userData.email);
       if (existingUser) {
-        throw new ValidationError('User with this email already exists');
+        throw new ValidationError('Un utilisateur avec cet email existe déjà');
       }
 
       // Hash password
@@ -79,7 +79,7 @@ export class AuthService implements IAuthService {
       if (error instanceof ValidationError) {
         throw error;
       }
-      throw new Error('Registration failed');
+      throw new Error('Échec de l\'inscription');
     }
   }
 
@@ -91,19 +91,19 @@ export class AuthService implements IAuthService {
       // Find user
       const user = await this.userRepository.findById(decoded.id);
       if (!user || !user.isActive) {
-        throw new AuthenticationError('Invalid refresh token');
+        throw new AuthenticationError('Token de rafraîchissement invalide');
       }
 
       // Generate new tokens
       return await this.generateTokens(user);
     } catch (error) {
       if (error instanceof jwt.JsonWebTokenError) {
-        throw new AuthenticationError('Invalid refresh token');
+        throw new AuthenticationError('Token de rafraîchissement invalide');
       }
       if (error instanceof AuthenticationError) {
         throw error;
       }
-      throw new AuthenticationError('Token refresh failed');
+      throw new AuthenticationError('Échec du rafraîchissement du token');
     }
   }
 
@@ -114,18 +114,18 @@ export class AuthService implements IAuthService {
       // Check if user still exists and is active
       const user = await this.userRepository.findById(decoded.id);
       if (!user || !user.isActive) {
-        throw new AuthenticationError('Invalid token');
+        throw new AuthenticationError('Token invalide');
       }
 
       return decoded;
     } catch (error) {
       if (error instanceof jwt.JsonWebTokenError) {
-        throw new AuthenticationError('Invalid token');
+        throw new AuthenticationError('Token invalide');
       }
       if (error instanceof AuthenticationError) {
         throw error;
       }
-      throw new AuthenticationError('Token validation failed');
+      throw new AuthenticationError('Échec de la validation du token');
     }
   }
 

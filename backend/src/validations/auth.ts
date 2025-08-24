@@ -4,12 +4,12 @@ import { z } from 'zod';
 export const loginSchema = z.object({
   email: z
     .string()
-    .email('Invalid email format')
-    .min(1, 'Email is required'),
+    .email('Format d\'email invalide')
+    .min(1, 'Email requis'),
   password: z
     .string()
-    .min(6, 'Password must be at least 6 characters')
-    .max(128, 'Password must not exceed 128 characters'),
+    .min(6, 'Le mot de passe doit contenir au moins 6 caractères')
+    .max(128, 'Le mot de passe ne doit pas dépasser 128 caractères'),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -18,35 +18,35 @@ export type LoginInput = z.infer<typeof loginSchema>;
 export const registerSchema = z.object({
   email: z
     .string()
-    .email('Invalid email format')
-    .min(1, 'Email is required'),
+    .email('Format d\'email invalide')
+    .min(1, 'Email requis'),
   password: z
     .string()
-    .min(6, 'Password must be at least 6 characters')
-    .max(128, 'Password must not exceed 128 characters')
+    .min(6, 'Le mot de passe doit contenir au moins 6 caractères')
+    .max(128, 'Le mot de passe ne doit pas dépasser 128 caractères')
     .regex(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      'Password must contain at least one lowercase letter, one uppercase letter, and one number'
+      'Le mot de passe doit contenir au moins une minuscule, une majuscule et un chiffre'
     ),
   confirmPassword: z
     .string()
-    .min(1, 'Password confirmation is required'),
+    .min(1, 'Confirmation du mot de passe requise'),
   firstName: z
     .string()
-    .min(2, 'First name must be at least 2 characters')
-    .max(50, 'First name must not exceed 50 characters')
-    .regex(/^[a-zA-Z\s]+$/, 'First name can only contain letters and spaces'),
+    .min(2, 'Le prénom doit contenir au moins 2 caractères')
+    .max(50, 'Le prénom ne doit pas dépasser 50 caractères')
+    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, 'Le prénom ne peut contenir que des lettres et espaces'),
   lastName: z
     .string()
-    .min(2, 'Last name must be at least 2 characters')
-    .max(50, 'Last name must not exceed 50 characters')
-    .regex(/^[a-zA-Z\s]+$/, 'Last name can only contain letters and spaces'),
+    .min(2, 'Le nom doit contenir au moins 2 caractères')
+    .max(50, 'Le nom ne doit pas dépasser 50 caractères')
+    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, 'Le nom ne peut contenir que des lettres et espaces'),
   role: z
     .enum(['user', 'admin'])
     .optional()
     .default('user'),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
+  message: "Les mots de passe ne correspondent pas",
   path: ["confirmPassword"],
 });
 
@@ -56,7 +56,7 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 export const refreshTokenSchema = z.object({
   refreshToken: z
     .string()
-    .min(1, 'Refresh token is required'),
+    .min(1, 'Token de rafraîchissement requis'),
 });
 
 export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>;
@@ -65,7 +65,7 @@ export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>;
 export const validateTokenSchema = z.object({
   token: z
     .string()
-    .min(1, 'Token is required'),
+    .min(1, 'Token requis'),
 });
 
 export type ValidateTokenInput = z.infer<typeof validateTokenSchema>;
@@ -74,20 +74,20 @@ export type ValidateTokenInput = z.infer<typeof validateTokenSchema>;
 export const changePasswordSchema = z.object({
   currentPassword: z
     .string()
-    .min(1, 'Current password is required'),
+    .min(1, 'Mot de passe actuel requis'),
   newPassword: z
     .string()
-    .min(6, 'New password must be at least 6 characters')
-    .max(128, 'New password must not exceed 128 characters')
+    .min(6, 'Le nouveau mot de passe doit contenir au moins 6 caractères')
+    .max(128, 'Le nouveau mot de passe ne doit pas dépasser 128 caractères')
     .regex(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      'New password must contain at least one lowercase letter, one uppercase letter, and one number'
+      'Le nouveau mot de passe doit contenir au moins une minuscule, une majuscule et un chiffre'
     ),
   confirmNewPassword: z
     .string()
-    .min(1, 'Password confirmation is required'),
+    .min(1, 'Confirmation du mot de passe requise'),
 }).refine((data) => data.newPassword === data.confirmNewPassword, {
-  message: "New passwords don't match",
+  message: "Les nouveaux mots de passe ne correspondent pas",
   path: ["confirmNewPassword"],
 });
 
