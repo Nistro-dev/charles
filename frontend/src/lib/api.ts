@@ -25,8 +25,7 @@ api.interceptors.response.use(
   (error) => {
     // Only redirect on 401 if we're not already on login/register pages
     if (error.response?.status === 401 && !window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      localStorage.clear();
       window.location.href = '/login';
     }
     return Promise.reject(error);

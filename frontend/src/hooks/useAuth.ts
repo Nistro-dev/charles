@@ -31,18 +31,24 @@ export function useAuth(): UseAuthReturn {
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
     
+    // Nettoyer le localStorage si les données sont corrompues
     if (token && userStr) {
       try {
         const user = JSON.parse(userStr);
-        setAuthState({
-          user,
-          isAuthenticated: true,
-          isLoading: false,
-        });
+        // Vérifier que l'utilisateur a les propriétés requises
+        if (user && typeof user === 'object' && user.id && user.email) {
+          setAuthState({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        } else {
+          throw new Error('Invalid user data structure');
+        }
       } catch (error) {
         console.error('Error parsing user from localStorage:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        // Nettoyer complètement le localStorage
+        localStorage.clear();
         setAuthState({
           user: null,
           isAuthenticated: false,
@@ -50,6 +56,10 @@ export function useAuth(): UseAuthReturn {
         });
       }
     } else {
+      // S'assurer que le localStorage est propre
+      if (token || userStr) {
+        localStorage.clear();
+      }
       setAuthState({
         user: null,
         isAuthenticated: false,
@@ -134,11 +144,11 @@ export function useAuth(): UseAuthReturn {
     }
   }, [registerMutation]);
 
-  // Logout function
+    // Logout function
   const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    
+    // Nettoyer complètement le localStorage
+    localStorage.clear();
+
     setAuthState({
       user: null,
       isAuthenticated: false,
