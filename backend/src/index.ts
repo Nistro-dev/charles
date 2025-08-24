@@ -72,6 +72,15 @@ fastify.get('/health', async () => {
   return { status: 'ok', timestamp: new Date().toISOString() };
 });
 
+// Hook pour logger toutes les réponses
+fastify.addHook('onSend', (request, reply, payload, done) => {
+  console.log('🔍 Fastify onSend hook - URL:', request.url);
+  console.log('🔍 Fastify onSend hook - Method:', request.method);
+  console.log('🔍 Fastify onSend hook - Status:', reply.statusCode);
+  console.log('🔍 Fastify onSend hook - Payload:', payload);
+  done();
+});
+
 // Error handler
 fastify.setErrorHandler((error, request, reply) => {
   fastify.log.error(error);

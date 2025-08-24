@@ -16,12 +16,29 @@ export class AuthController extends BaseController {
       const credentials = request.body as LoginDto;
       const result = await this.authService.login(credentials);
 
-      this.sendSuccess(reply, {
-        user: result.user,
+      console.log('🔍 AuthController login result:', result);
+
+      const userData = result.user.toJSON ? result.user.toJSON() : result.user;
+      console.log('🔍 AuthController userData:', userData);
+      console.log('🔍 AuthController userData type:', typeof userData);
+      console.log('🔍 AuthController userData keys:', Object.keys(userData));
+      
+      const responseData = {
+        user: userData,
         accessToken: result.tokens.accessToken,
         refreshToken: result.tokens.refreshToken,
-      }, 'Connexion réussie');
+      };
+
+      console.log('🔍 AuthController sending response:', responseData);
+      console.log('🔍 AuthController responseData type:', typeof responseData);
+      console.log('🔍 AuthController responseData keys:', Object.keys(responseData));
+      console.log('🔍 AuthController responseData.user:', responseData.user);
+      console.log('🔍 AuthController responseData.accessToken:', responseData.accessToken);
+      console.log('🔍 AuthController responseData.refreshToken:', responseData.refreshToken);
+
+      this.sendSuccess(reply, responseData, 'Connexion réussie');
     } catch (error) {
+      console.error('❌ AuthController login error:', error);
       this.handleError(reply, error, request);
     }
   }
@@ -32,7 +49,7 @@ export class AuthController extends BaseController {
       const result = await this.authService.register(userData);
 
       this.sendCreated(reply, {
-        user: result.user,
+        user: result.user.toJSON ? result.user.toJSON() : result.user,
         accessToken: result.tokens.accessToken,
         refreshToken: result.tokens.refreshToken,
       }, 'Utilisateur inscrit avec succès');

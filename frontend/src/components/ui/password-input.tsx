@@ -23,7 +23,7 @@ export function PasswordInput({ label, error, ...props }: PasswordInputProps) {
           {...props}
           type={showPassword ? 'text' : 'password'}
           className={`pr-10 ${error ? 'border-red-500' : ''}`}
-          noValidate
+          autoComplete="current-password"
         />
         <Button
           type="button"
@@ -40,8 +40,13 @@ export function PasswordInput({ label, error, ...props }: PasswordInputProps) {
         </Button>
       </div>
       {error && error.trim() !== '' && (
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-sm text-red-600">
+          {error} 
+          <span className="text-xs text-gray-500 ml-2">(Debug: {JSON.stringify(error)})</span>
+        </p>
       )}
     </div>
   );
-} 
+}
+
+export default PasswordInput; 

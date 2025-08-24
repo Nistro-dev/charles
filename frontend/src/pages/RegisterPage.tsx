@@ -12,10 +12,10 @@ import { authAPI } from '@/lib/api';
 import { PasswordInput } from '@/components/ui/password-input';
 
 const registerSchema = z.object({
-  firstName: z.string().min(1, 'Prénom requis').min(2, 'Le prénom doit contenir au moins 2 caractères'),
-  lastName: z.string().min(1, 'Nom requis').min(2, 'Le nom doit contenir au moins 2 caractères'),
+  firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
+  lastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   email: z.string().min(1, 'Email requis').email('Email invalide'),
-  password: z.string().min(1, 'Mot de passe requis').min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
+  password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
   confirmPassword: z.string().min(1, 'Confirmation du mot de passe requise'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Les mots de passe ne correspondent pas",

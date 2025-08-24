@@ -21,11 +21,22 @@ export async function authRoutes(fastify: FastifyInstance) {
       response: {
         201: {
           type: 'object',
+          additionalProperties: false,
           properties: {
+            success: { type: 'boolean' },
             message: { type: 'string' },
-            user: { type: 'object' },
-            token: { type: 'string' },
+            data: {
+              type: 'object',
+              additionalProperties: true,
+              properties: {
+                user: { type: 'object', additionalProperties: true },
+                accessToken: { type: 'string' },
+                refreshToken: { type: 'string' },
+              },
+              required: ['user', 'accessToken', 'refreshToken']
+            },
           },
+          required: ['success', 'data']
         },
       },
     },
@@ -47,11 +58,22 @@ export async function authRoutes(fastify: FastifyInstance) {
       response: {
         200: {
           type: 'object',
+          additionalProperties: false,
           properties: {
+            success: { type: 'boolean' },
             message: { type: 'string' },
-            user: { type: 'object' },
-            token: { type: 'string' },
+            data: {
+              type: 'object',
+              additionalProperties: true,
+              properties: {
+                user: { type: 'object', additionalProperties: true },
+                accessToken: { type: 'string' },
+                refreshToken: { type: 'string' },
+              },
+              required: ['user', 'accessToken', 'refreshToken']
+            },
           },
+          required: ['success', 'data']
         },
       },
     },
@@ -67,9 +89,20 @@ export async function authRoutes(fastify: FastifyInstance) {
       response: {
         200: {
           type: 'object',
+          additionalProperties: false,
           properties: {
-            user: { type: 'object' },
+            success: { type: 'boolean' },
+            message: { type: 'string' },
+            data: {
+              type: 'object',
+              additionalProperties: true,
+              properties: {
+                user: { type: 'object', additionalProperties: true },
+              },
+              required: ['user']
+            },
           },
+          required: ['success', 'data']
         },
       },
     },

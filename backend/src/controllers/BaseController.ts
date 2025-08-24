@@ -14,6 +14,11 @@ export abstract class BaseController {
       message,
     };
 
+    console.log('🔍 BaseController sendSuccess response (summary):', {
+      hasData: response.data !== undefined && response.data !== null,
+      message: response.message,
+      statusCode,
+    });
     reply.status(statusCode).send(response);
   }
 

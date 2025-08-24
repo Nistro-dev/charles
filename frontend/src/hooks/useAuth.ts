@@ -59,12 +59,14 @@ export function useAuth(): UseAuthReturn {
           isLoading: false,
         });
       }
+    } else if (token && !userStr) {
+      // Token présent mais pas d'utilisateur: rester authentifié et charger /me
+      setAuthState({
+        user: null,
+        isAuthenticated: true,
+        isLoading: true,
+      });
     } else {
-      // S'assurer que le localStorage est propre
-      if (token || userStr) {
-        console.log('🧹 Cleaning localStorage with partial data');
-        localStorage.clear();
-      }
       setAuthState({
         user: null,
         isAuthenticated: false,
@@ -84,12 +86,14 @@ export function useAuth(): UseAuthReturn {
   // Update auth state when current user changes
   useEffect(() => {
     if (currentUser && authState.isAuthenticated) {
+      // currentUser can be either a User object or an object containing { user: User }
+      const userFromResponse = (currentUser as any).user ?? currentUser;
       setAuthState(prev => ({
         ...prev,
-                  user: currentUser as any,
+        user: userFromResponse as any,
         isLoading: false,
       }));
-              localStorage.setItem('user', JSON.stringify(currentUser));
+      localStorage.setItem('user', JSON.stringify(userFromResponse));
     }
   }, [currentUser, authState.isAuthenticated]);
 
@@ -97,6 +101,13 @@ export function useAuth(): UseAuthReturn {
   const loginMutation = useMutation({
     mutationFn: authAPI.login,
     onSuccess: (data) => {
+      console.log('🔍 Login success data:', data);
+      
+      if (!data.accessToken || !data.user) {
+        console.error('❌ Missing accessToken or user in response');
+        throw new Error('Réponse invalide du serveur');
+      }
+      
       localStorage.setItem('token', data.accessToken);
       localStorage.setItem('user', JSON.stringify(data.user));
       
@@ -109,6 +120,9 @@ export function useAuth(): UseAuthReturn {
       queryClient.invalidateQueries({ queryKey: ['user'] });
       navigate('/dashboard');
     },
+    onError: (error) => {
+      console.error('❌ Login mutation error:', error);
+    }
   });
 
   // Register mutation

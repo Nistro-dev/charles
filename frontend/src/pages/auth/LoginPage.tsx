@@ -7,9 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Layout } from '@/components/layout/Layout';
 import { useForm } from '@/hooks/useForm';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { ErrorMessage } from '@/components/common/ErrorMessage';
-import { PasswordInput } from '@/components/ui/password-input';
+import { Eye } from 'lucide-react';
+import { Navigate } from 'react-router-dom';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email requis').email('Email invalide'),
@@ -19,10 +20,15 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuthContext();
+  
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
   
   const form = useForm<LoginForm>({
     schema: loginSchema,
+    mode: 'onChange',
   });
 
   const handleSubmit = async (data: LoginForm) => {
@@ -55,13 +61,35 @@ export function LoginPage() {
                   )}
                 </div>
 
-                <PasswordInput
-                  id="password"
-                  label="Mot de passe"
-                  placeholder="••••••••"
-                  error={(form as any).formState.errors.password?.message}
-                  {...(form as any).register('password')}
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="password">Mot de passe</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      className="pr-10"
+                      {...(form as any).register('password')}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => {
+                        const input = document.getElementById('password') as HTMLInputElement;
+                        if (input) {
+                          input.type = input.type === 'password' ? 'text' : 'password';
+                        }
+                      }}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {(form as any).formState.errors.password && (
+                    <p className="text-sm text-red-600">{(form as any).formState.errors.password.message}</p>
+                  )}
+                </div>
 
                 {form.submitError && (
                   <ErrorMessage 
@@ -73,7 +101,7 @@ export function LoginPage() {
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={form.isSubmitting}
+                  disabled={form.isSubmitting || !(form as any).formState.isValid}
                 >
                   {form.isSubmitting ? 'Connexion...' : 'Se connecter'}
                 </Button>

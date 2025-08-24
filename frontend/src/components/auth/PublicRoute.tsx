@@ -9,12 +9,13 @@ interface PublicRouteProps {
 
 export function PublicRoute({ children }: PublicRouteProps) {
   const { isAuthenticated, isLoading } = useAuthContext();
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
   if (isLoading) {
     return <LoadingPage />;
   }
 
-  if (isAuthenticated) {
+  if (isAuthenticated || token) {
     return <Navigate to="/dashboard" replace />;
   }
 

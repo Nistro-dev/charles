@@ -35,10 +35,30 @@ api.interceptors.response.use(
 export const authAPI = {
   login: async (credentials: LoginRequest): Promise<AuthResponse> => {
     try {
+      console.log('🔍 Sending login request with credentials:', credentials);
+      
       const response = await api.post('/api/auth/login', credentials);
-      console.log('🔍 Login API response:', response.data);
-      return response.data;
+      console.log('🔍 Login API full response:', response);
+      console.log('🔍 Login API response.data:', response.data);
+      console.log('🔍 Login API response.data type:', typeof response.data);
+      console.log('🔍 Login API response.data keys:', Object.keys(response.data));
+      console.log('🔍 Login API response.data.success:', response.data.success);
+      console.log('🔍 Login API response.data.data:', response.data.data);
+      console.log('🔍 Login API response.data.message:', response.data.message);
+      
+      // Extraire les données de la réponse API
+      if (response.data.success && response.data.data) {
+        console.log('✅ Returning response.data.data:', response.data.data);
+        return response.data.data;
+      } else {
+        console.error('❌ Invalid response structure:', response.data);
+        throw new Error(response.data.message || 'Réponse invalide du serveur');
+      }
     } catch (error: any) {
+      console.error('❌ Login API error:', error);
+      console.error('❌ Login API error.response:', error.response);
+      console.error('❌ Login API error.response?.data:', error.response?.data);
+      
       // Extract error message from backend response
       const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Erreur de connexion';
       throw new Error(errorMessage);
@@ -48,7 +68,13 @@ export const authAPI = {
   register: async (userData: RegisterRequest): Promise<AuthResponse> => {
     try {
       const response = await api.post('/api/auth/register', userData);
-      return response.data;
+      
+      // Extraire les données de la réponse API
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      } else {
+        throw new Error(response.data.message || 'Réponse invalide du serveur');
+      }
     } catch (error: any) {
       // Extract error message from backend response
       const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Erreur d\'inscription';
@@ -59,7 +85,13 @@ export const authAPI = {
   me: async (): Promise<{ user: User }> => {
     try {
       const response = await api.get('/api/auth/me');
-      return response.data;
+      
+      // Extraire les données de la réponse API
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      } else {
+        throw new Error(response.data.message || 'Réponse invalide du serveur');
+      }
     } catch (error: any) {
       // Extract error message from backend response
       const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Erreur de récupération du profil';

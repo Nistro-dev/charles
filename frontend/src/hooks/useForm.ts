@@ -25,22 +25,7 @@ export function useForm<T extends FieldValues>({
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const form = useReactHookForm<T>({
-    resolver: zodResolver(schema, {
-      errorMap: (error, ctx) => {
-        // Traduire les messages d'erreur par défaut de Zod
-        if (error.code === 'invalid_type') {
-          if (error.received === 'undefined' || error.received === 'null') {
-            return { message: 'Ce champ est requis' };
-          }
-        }
-        if (error.code === 'invalid_string') {
-          if (error.validation === 'email') {
-            return { message: 'Format d\'email invalide' };
-          }
-        }
-        return { message: ctx.defaultError };
-      },
-    }),
+    resolver: zodResolver(schema),
     defaultValues: defaultValues as any,
     mode,
   });
