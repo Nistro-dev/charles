@@ -36,6 +36,7 @@ export const authAPI = {
   login: async (credentials: LoginRequest): Promise<AuthResponse> => {
     try {
       const response = await api.post('/api/auth/login', credentials);
+      console.log('🔍 Login API response:', response.data);
       return response.data;
     } catch (error: any) {
       // Extract error message from backend response

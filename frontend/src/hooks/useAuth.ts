@@ -31,10 +31,13 @@ export function useAuth(): UseAuthReturn {
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
     
+    console.log('🔍 Debug localStorage:', { token: token?.substring(0, 20) + '...', userStr });
+    
     // Nettoyer le localStorage si les données sont corrompues
     if (token && userStr) {
       try {
         const user = JSON.parse(userStr);
+        console.log('✅ User parsed successfully:', user);
         // Vérifier que l'utilisateur a les propriétés requises
         if (user && typeof user === 'object' && user.id && user.email) {
           setAuthState({
@@ -46,7 +49,8 @@ export function useAuth(): UseAuthReturn {
           throw new Error('Invalid user data structure');
         }
       } catch (error) {
-        console.error('Error parsing user from localStorage:', error);
+        console.error('❌ Error parsing user from localStorage:', error);
+        console.error('Raw userStr:', userStr);
         // Nettoyer complètement le localStorage
         localStorage.clear();
         setAuthState({
@@ -58,6 +62,7 @@ export function useAuth(): UseAuthReturn {
     } else {
       // S'assurer que le localStorage est propre
       if (token || userStr) {
+        console.log('🧹 Cleaning localStorage with partial data');
         localStorage.clear();
       }
       setAuthState({

@@ -9,13 +9,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { authAPI } from '@/lib/api';
+import { PasswordInput } from '@/components/ui/password-input';
 
 const registerSchema = z.object({
-  firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
-  lastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
-  email: z.string().email('Email invalide'),
-  password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
-  confirmPassword: z.string(),
+  firstName: z.string().min(1, 'Prénom requis').min(2, 'Le prénom doit contenir au moins 2 caractères'),
+  lastName: z.string().min(1, 'Nom requis').min(2, 'Le nom doit contenir au moins 2 caractères'),
+  email: z.string().min(1, 'Email requis').email('Email invalide'),
+  password: z.string().min(1, 'Mot de passe requis').min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
+  confirmPassword: z.string().min(1, 'Confirmation du mot de passe requise'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Les mots de passe ne correspondent pas",
   path: ["confirmPassword"],
@@ -107,31 +108,21 @@ export function RegisterPage() {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Mot de passe</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  {...register('password')}
-                />
-                {errors.password && (
-                  <p className="text-sm text-red-600">{errors.password.message}</p>
-                )}
-              </div>
+              <PasswordInput
+                id="password"
+                label="Mot de passe"
+                placeholder="••••••••"
+                error={errors.password?.message}
+                {...register('password')}
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  {...register('confirmPassword')}
-                />
-                {errors.confirmPassword && (
-                  <p className="text-sm text-red-600">{errors.confirmPassword.message}</p>
-                )}
-              </div>
+              <PasswordInput
+                id="confirmPassword"
+                label="Confirmer le mot de passe"
+                placeholder="••••••••"
+                error={errors.confirmPassword?.message}
+                {...register('confirmPassword')}
+              />
 
               {errors.root && (
                 <p className="text-sm text-red-600">{errors.root.message}</p>

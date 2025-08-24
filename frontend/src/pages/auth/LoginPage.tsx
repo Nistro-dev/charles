@@ -9,10 +9,11 @@ import { Layout } from '@/components/layout/Layout';
 import { useForm } from '@/hooks/useForm';
 import { useAuth } from '@/hooks/useAuth';
 import { ErrorMessage } from '@/components/common/ErrorMessage';
+import { PasswordInput } from '@/components/ui/password-input';
 
 const loginSchema = z.object({
-  email: z.string().email('Email invalide'),
-  password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
+  email: z.string().min(1, 'Email requis').email('Email invalide'),
+  password: z.string().min(1, 'Mot de passe requis').min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
@@ -54,18 +55,13 @@ export function LoginPage() {
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password">Mot de passe</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    {...(form as any).register('password')}
-                  />
-                  {(form as any).formState.errors.password && (
-                    <p className="text-sm text-red-600">{(form as any).formState.errors.password.message}</p>
-                  )}
-                </div>
+                <PasswordInput
+                  id="password"
+                  label="Mot de passe"
+                  placeholder="••••••••"
+                  error={(form as any).formState.errors.password?.message}
+                  {...(form as any).register('password')}
+                />
 
                 {form.submitError && (
                   <ErrorMessage 
