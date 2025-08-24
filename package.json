@@ -1,0 +1,31 @@
+{
+  "name": "thales",
+  "version": "1.0.0",
+  "description": "Projet Thales - Backend Fastify + Frontend React",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"pnpm run dev:backend\" \"pnpm run dev:frontend\"",
+    "dev:backend": "cd backend && pnpm run dev",
+    "dev:frontend": "cd frontend && pnpm run dev",
+    "build": "pnpm run build:backend && pnpm run build:frontend",
+    "build:backend": "cd backend && pnpm run build",
+    "build:frontend": "cd frontend && pnpm run build",
+    "install:all": "pnpm install",
+    "db:migrate": "cd backend && pnpm run db:migrate",
+    "db:seed": "cd backend && pnpm run db:seed",
+    "test:backend": "cd backend && pnpm run test:ci",
+    "test:frontend": "cd frontend && pnpm run test:ci",
+    "test": "pnpm run test:backend && pnpm run test:frontend",
+    "lint:backend": "cd backend && pnpm run lint",
+    "lint:frontend": "cd frontend && pnpm run lint",
+    "lint": "pnpm run lint:backend && pnpm run lint:frontend",
+    "clean": "pnpm -r exec rm -rf node_modules && rm -rf node_modules"
+  },
+  "keywords": ["thales", "fastify", "react", "typescript", "mysql"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "packageManager": "pnpm@10.7.0"
+} 

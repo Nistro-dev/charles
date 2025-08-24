@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+- Check if the frontend run correctly, with the command tests, build, lint. If not, fix it and check again until it fixes.
