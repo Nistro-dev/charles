@@ -4,9 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { authAPI } from '@/lib/api';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 export function DashboardPage() {
   const navigate = useNavigate();
+  const { logout } = useAuthContext();
 
   const { data: userData, isLoading, error } = useQuery({
     queryKey: ['user'],
@@ -15,9 +17,7 @@ export function DashboardPage() {
   });
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
+    logout();
   };
 
   if (isLoading) {
@@ -114,19 +114,15 @@ export function DashboardPage() {
                 <CardTitle>Statistiques</CardTitle>
                 <CardDescription>Vue d'ensemble de votre activité</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Membre depuis</span>
-                    <span className="text-sm font-medium">
-                      {new Date(user?.createdAt || '').toLocaleDateString('fr-FR')}
-                    </span>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">0</div>
+                    <div className="text-sm text-gray-500">Projets</div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Dernière connexion</span>
-                    <span className="text-sm font-medium">
-                      {new Date(user?.updatedAt || '').toLocaleDateString('fr-FR')}
-                    </span>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">0</div>
+                    <div className="text-sm text-gray-500">Tâches</div>
                   </div>
                 </div>
               </CardContent>
@@ -134,18 +130,18 @@ export function DashboardPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Actions Rapides</CardTitle>
+                <CardTitle>Actions rapides</CardTitle>
                 <CardDescription>Accédez rapidement aux fonctionnalités</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button className="w-full" variant="outline">
+                  Créer un projet
+                </Button>
+                <Button className="w-full" variant="outline">
+                  Voir les tâches
+                </Button>
+                <Button className="w-full" variant="outline">
                   Modifier le profil
-                </Button>
-                <Button className="w-full" variant="outline">
-                  Changer le mot de passe
-                </Button>
-                <Button className="w-full" variant="outline">
-                  Paramètres
                 </Button>
               </CardContent>
             </Card>

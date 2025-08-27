@@ -1,5 +1,6 @@
 import { createContext, useContext, ReactNode } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToastContext } from '@/contexts/ToastContext';
 import { User } from '@/types';
 
 interface AuthContextType {
@@ -19,7 +20,12 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const auth = useAuth();
+  const { success, error: showError } = useToastContext();
+  
+  const auth = useAuth({
+    onSuccess: success,
+    onError: showError,
+  });
 
   return (
     <AuthContext.Provider value={auth}>

@@ -17,76 +17,72 @@ interface UseAuthReturn extends AuthState {
   refreshToken: () => Promise<void>;
 }
 
-export function useAuth(): UseAuthReturn {
+interface UseAuthOptions {
+  onSuccess?: (message: string, description?: string) => void;
+  onError?: (message: string, description?: string) => void;
+}
+
+export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { onSuccess, onError } = options;
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     isAuthenticated: false,
     isLoading: true,
   });
 
-  // Get user from localStorage on mount
+  // Get user from localStorage on mount and validate token
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userStr = localStorage.getItem('user');
-    
-    console.log('🔍 Debug localStorage:', { token: token?.substring(0, 20) + '...', userStr });
-    
-    // Nettoyer le localStorage si les données sont corrompues
-    if (token && userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        console.log('✅ User parsed successfully:', user);
-        // Vérifier que l'utilisateur a les propriétés requises
-        if (user && typeof user === 'object' && user.id && user.email) {
+    const initializeAuth = async () => {
+      const token = localStorage.getItem('token');
+      
+      if (token) {
+        try {
+          // Try to validate the token by calling /me endpoint
+          const response = await authAPI.me();
+          const user = response.user;
+          
           setAuthState({
             user,
             isAuthenticated: true,
             isLoading: false,
           });
-        } else {
-          throw new Error('Invalid user data structure');
+          
+          // Update localStorage with fresh user data
+          localStorage.setItem('user', JSON.stringify(user));
+        } catch (error) {
+          // Clear invalid data
+          localStorage.clear();
+          setAuthState({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
         }
-      } catch (error) {
-        console.error('❌ Error parsing user from localStorage:', error);
-        console.error('Raw userStr:', userStr);
-        // Nettoyer complètement le localStorage
-        localStorage.clear();
+      } else {
         setAuthState({
           user: null,
           isAuthenticated: false,
           isLoading: false,
         });
       }
-    } else if (token && !userStr) {
-      // Token présent mais pas d'utilisateur: rester authentifié et charger /me
-      setAuthState({
-        user: null,
-        isAuthenticated: true,
-        isLoading: true,
-      });
-    } else {
-      setAuthState({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
-    }
+    };
+
+    initializeAuth();
   }, []);
 
-  // Query to get current user
-  const { data: currentUser, isLoading: isLoadingUser } = useQuery({
+  // Query to get current user (for refresh scenarios)
+  const { data: currentUser } = useQuery({
     queryKey: ['user'],
     queryFn: authAPI.me,
-    enabled: authState.isAuthenticated,
+    enabled: authState.isAuthenticated && !authState.user,
     retry: false,
   });
 
   // Update auth state when current user changes
   useEffect(() => {
     if (currentUser && authState.isAuthenticated) {
-      // currentUser can be either a User object or an object containing { user: User }
       const userFromResponse = (currentUser as any).user ?? currentUser;
       setAuthState(prev => ({
         ...prev,
@@ -101,10 +97,7 @@ export function useAuth(): UseAuthReturn {
   const loginMutation = useMutation({
     mutationFn: authAPI.login,
     onSuccess: (data) => {
-      console.log('🔍 Login success data:', data);
-      
       if (!data.accessToken || !data.user) {
-        console.error('❌ Missing accessToken or user in response');
         throw new Error('Réponse invalide du serveur');
       }
       
@@ -118,10 +111,16 @@ export function useAuth(): UseAuthReturn {
       });
 
       queryClient.invalidateQueries({ queryKey: ['user'] });
+      
+      // Afficher la notification de succès
+      onSuccess?.('Connexion réussie', `Bienvenue ${data.user.firstName} !`);
+      
       navigate('/dashboard');
     },
-    onError: (error) => {
-      console.error('❌ Login mutation error:', error);
+    onError: (error: any) => {
+      // Afficher la notification d'erreur
+      onError?.('Erreur de connexion', error.message || 'Identifiants incorrects');
+      throw error;
     }
   });
 
@@ -139,8 +138,17 @@ export function useAuth(): UseAuthReturn {
       });
 
       queryClient.invalidateQueries({ queryKey: ['user'] });
+      
+      // Afficher la notification de succès
+      onSuccess?.('Inscription réussie', `Compte créé pour ${data.user.firstName} !`);
+      
       navigate('/dashboard');
     },
+    onError: (error: any) => {
+      // Afficher la notification d'erreur
+      onError?.('Erreur d\'inscription', error.message || 'Impossible de créer le compte');
+      throw error;
+    }
   });
 
   // Login function
@@ -163,7 +171,7 @@ export function useAuth(): UseAuthReturn {
     }
   }, [registerMutation]);
 
-    // Logout function
+  // Logout function
   const logout = useCallback(() => {
     // Nettoyer complètement le localStorage
     localStorage.clear();
@@ -175,8 +183,15 @@ export function useAuth(): UseAuthReturn {
     });
 
     queryClient.clear();
-    navigate('/login');
-  }, [navigate, queryClient]);
+    
+    // Afficher la notification de succès
+    onSuccess?.('Déconnexion réussie', 'Vous avez été déconnecté avec succès');
+    
+    // Délai pour que la notification s'affiche avant la navigation
+    setTimeout(() => {
+      navigate('/login');
+    }, 500);
+  }, [queryClient, onSuccess, navigate]);
 
   // Refresh token function
   const refreshToken = useCallback(async (): Promise<void> => {
@@ -186,8 +201,7 @@ export function useAuth(): UseAuthReturn {
     }
 
     try {
-      // In a real app, you would call a refresh token endpoint
-      // For now, we'll just validate the current token
+      // Call /me endpoint to validate current token
       const response = await authAPI.me();
       if (response.user) {
         setAuthState(prev => ({
@@ -197,15 +211,14 @@ export function useAuth(): UseAuthReturn {
         localStorage.setItem('user', JSON.stringify(response.user));
       }
     } catch (error) {
+      // If refresh fails, logout the user
       logout();
       throw error;
     }
   }, [logout]);
 
   return {
-    user: authState.user,
-    isAuthenticated: authState.isAuthenticated,
-    isLoading: authState.isLoading || isLoadingUser,
+    ...authState,
     login,
     register,
     logout,

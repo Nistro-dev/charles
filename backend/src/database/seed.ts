@@ -21,6 +21,8 @@ async function seed() {
     } else {
       console.log('ℹ️  Admin user already exists:', adminUser.email);
     }
+
+
     
     // Check if test user already exists
     let testUser = await User.findOne({ where: { email: 'user@thales.com' } });

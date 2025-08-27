@@ -17,13 +17,13 @@ export class AuthService implements IAuthService {
     try {
       // Validate input
       if (!credentials.email || !credentials.password) {
-        throw new ValidationError('Email and password are required');
+        throw new ValidationError('Email et mot de passe requis');
       }
 
       // Find user by email
       const user = await this.userRepository.findByEmailWithPassword(credentials.email);
       if (!user) {
-        throw new AuthenticationError('Invalid credentials');
+        throw new AuthenticationError('Identifiants incorrects');
       }
 
       // Check if user is active
@@ -34,7 +34,7 @@ export class AuthService implements IAuthService {
       // Verify password
       const isValidPassword = await this.verifyPassword(credentials.password, user.password);
       if (!isValidPassword) {
-        throw new AuthenticationError('Email ou mot de passe incorrect');
+        throw new AuthenticationError('Identifiants incorrects');
       }
 
       // Generate tokens
@@ -45,7 +45,7 @@ export class AuthService implements IAuthService {
       if (error instanceof AuthenticationError || error instanceof ValidationError) {
         throw error;
       }
-      throw new AuthenticationError('Échec de la connexion');
+      throw new AuthenticationError('Identifiants incorrects');
     }
   }
 

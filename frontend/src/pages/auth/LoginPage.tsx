@@ -98,23 +98,16 @@ export function LoginPage() {
                   />
                 )}
 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={form.isSubmitting || !(form as any).formState.isValid}
-                >
-                  {form.isSubmitting ? 'Connexion...' : 'Se connecter'}
+                <Button type="submit" className="w-full">
+                  Se connecter
                 </Button>
-              </form>
 
-              <div className="mt-4 text-center">
-                <p className="text-sm text-gray-600">
-                  Pas encore de compte ?{' '}
-                  <Link to="/register" className="text-blue-600 hover:text-blue-500">
-                    S'inscrire
+                <div className="text-center">
+                  <Link to="/register" className="text-sm text-blue-600 hover:text-blue-500">
+                    Pas encore de compte ? S'inscrire
                   </Link>
-                </p>
-              </div>
+                </div>
+              </form>
             </CardContent>
           </Card>
         </div>
